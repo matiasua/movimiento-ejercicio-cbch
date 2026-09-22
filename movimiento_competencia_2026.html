@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Movimiento propuesto, Competencia Anual 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F9; --panel:#FFFFFF; --ink:#18212F; --muted:#556072; --line:#D5DAE3;
+  --navy:#1E3F8F; --west:#0E8A6A; --north:#C62828; --h52:#C77F00; --jet:#2B7DE9;
+  --active:#F2B705; --fallen:#9AA3B2; --muro:#D9A21B;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1520; --panel:#162030; --ink:#DCE3EE; --muted:#9AA7BA; --line:#2A3649;
+    --navy:#8FB0F5; --west:#3CC9A0; --north:#FF6B6B; --h52:#F5B942; --jet:#6FB1FF;
+    --active:#F5C542; --fallen:#5E6A7D; --muro:#E7B640;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1520; --panel:#162030; --ink:#DCE3EE; --muted:#9AA7BA; --line:#2A3649;
+  --navy:#8FB0F5; --west:#3CC9A0; --north:#FF6B6B; --h52:#F5B942; --jet:#6FB1FF;
+  --active:#F5C542; --fallen:#5E6A7D; --muro:#E7B640;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 40px}
+h1{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:clamp(26px,4vw,36px);line-height:1.1;margin:0 0 4px;color:var(--navy)}
+.sub{color:var(--muted);margin:0 0 18px;max-width:72ch}
+.grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:1fr}}
+.board{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px}
+.board svg{display:block;width:100%;height:auto}
+.scroller{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.board.zoom .scroller svg{min-width:820px}
+.boardbar{display:none;justify-content:space-between;align-items:center;gap:8px;padding:6px 4px 2px;font-size:14px;color:var(--muted)}
+.boardbar button{padding:6px 10px;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:14px}
+.mbar{display:none}
+@media (max-width:860px){
+  .wrap{padding:14px 10px 24px}
+  .board{padding:4px}
+  .boardbar{display:flex}
+  .panel .nav{display:none}
+  .stepno{font-size:30px}
+  .note{min-height:0}
+  .mbar{display:flex;position:sticky;bottom:0;z-index:5;gap:8px;align-items:center;margin:14px -10px 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));background:var(--panel);border-top:1px solid var(--line)}
+  .mbar button{padding:12px 14px;border:1px solid var(--navy);background:var(--navy);color:var(--panel);font-weight:500;min-width:92px}
+  .mbar button.sec{background:transparent;color:var(--navy)}
+  .mbar button:disabled{opacity:.35}
+  .mbar span{flex:1;text-align:center;font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:20px}
+}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.stepno{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:40px;line-height:1;margin:0}
+.meta{color:var(--muted);margin:6px 0 10px;font-weight:500}
+.note{margin:0 0 14px;min-height:5.5em}
+.nav{display:flex;gap:8px;margin-bottom:12px}
+button{font:inherit;cursor:pointer;border-radius:6px}
+.nav button{flex:1;padding:10px 12px;border:1px solid var(--navy);background:var(--navy);color:var(--panel);font-weight:500}
+.nav button.sec{background:transparent;color:var(--navy)}
+.nav button:disabled{opacity:.35;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.chips button{min-width:36px;padding:6px 8px;border:1px solid var(--line);background:transparent;color:var(--ink);font-family:"Barlow Condensed",sans-serif;font-size:17px}
+.chips button[aria-current="step"]{background:var(--active);border-color:var(--active);color:#241A00}
+button:focus-visible{outline:3px solid var(--jet);outline-offset:2px}
+h2{font-family:"Barlow Condensed","Arial Narrow",sans-serif;font-weight:600;font-size:20px;margin:18px 0 8px}
+.toggle{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.toggle button{flex:1;padding:8px;border:0;border-radius:0;background:transparent;color:var(--ink);font-size:14px}
+.toggle button[aria-pressed="true"]{background:var(--navy);color:var(--panel)}
+.hint{font-size:14px;color:var(--muted);margin:6px 0 0}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted)}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:14px;align-items:center}
+.sw{width:34px;height:10px}
+.foot{font-size:14px;color:var(--muted);margin-top:18px;max-width:80ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Movimiento propuesto para la Competencia Anual 2026</h1>
+  <p class="sub">Croquis oficial de la cancha (50 × 50 m, norte a la derecha) con la armada de mangueras y el botado de los 12 blancos en orden. Avanza paso a paso con los botones, las flechas del teclado o deslizando el dedo sobre la cancha.</p>
+
+  <div class="grid">
+    <div class="board" id="board">
+      <div class="boardbar"><span>Desliza sobre la cancha para avanzar</span><button id="zoom" aria-pressed="false">Ampliar cancha</button></div>
+      <div class="scroller">
+      <svg id="cancha" viewBox="14 18 616 532" role="img" aria-labelledby="svgt">
+        <title id="svgt">Croquis de la cancha con líneas de manguera y posición de los pitoneros</title>
+        <defs>
+          <marker id="jetHead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1L9 5L1 9z" fill="var(--jet)"/></marker>
+          <marker id="walkHead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M1 1L9 5L1 9" fill="none" stroke="var(--muted)" stroke-width="1.6"/></marker>
+          <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="4" stroke="var(--muro)" stroke-width="2"/></pattern>
+        </defs>
+        <g id="static"></g>
+        <g id="dynamic"></g>
+      </svg>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="stepno" id="stepTitle">Campana y armada</p>
+      <p class="meta" id="stepMeta"></p>
+      <p class="note" id="stepNote"></p>
+      <div class="nav">
+        <button class="sec" id="prev" aria-label="Paso anterior">Anterior</button>
+        <button id="next" aria-label="Paso siguiente">Siguiente</button>
+      </div>
+      <div class="chips" id="chips" aria-label="Ir a un paso"></div>
+
+      <h2>Cómo leer la marca de cada blanco</h2>
+      <div class="toggle" role="group" aria-label="Interpretación de la marca del croquis">
+        <button id="modeF" aria-pressed="true">La marca es el sentido de caída</button>
+        <button id="modeL" aria-pressed="false">La marca es el lado de tiro</button>
+      </div>
+      <p class="hint">La pauta dice que la flecha indica el sentido de caída, pero en el croquis las marcas no tienen punta. Confirmar con la Comandancia; el cambio mueve la posición de cada pitonero.</p>
+
+      <h2>Orden de botado</h2>
+      <table>
+        <thead><tr><th>Secuencia</th><th>Blancos y zona</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>1 B · 2 D · 3 A · 4 C</td></tr>
+          <tr><td>2</td><td>5 B · 6 D · 7 C · 8 A</td></tr>
+          <tr><td>3</td><td>9 B · 10 D · 11 A · 12 C</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Referencias</h2>
+      <div class="legend">
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--west)" stroke-width="3"/></svg><span>Línea poniente, 72 mm (muro y pasillo central, pitón P-AC)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--north)" stroke-width="3"/></svg><span>Línea norte, 72 mm (pitones P-D y P-B)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--h52)" stroke-width="2.5" stroke-dasharray="5 3"/></svg><span>Línea 52 mm del blanco 12 (profesional)</span>
+        <svg class="sw" viewBox="0 0 34 10"><polygon points="17,0 22,5 17,10 12,5" fill="var(--navy)"/></svg><span>Gemelo 70x70x70 (G1 en trifurca, G-N en pasillo norte)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="2" y1="5" x2="30" y2="5" stroke="var(--jet)" stroke-width="2.5" marker-end="url(#jetHead)"/></svg><span>Chorro del pitón hacia el blanco</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="2" y1="5" x2="30" y2="5" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 3"/></svg><span>Recorrido a pie (campana y salida)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mbar" aria-label="Navegación de pasos">
+    <button class="sec" id="mprev">Anterior</button><span id="mlabel">Inicio</span><button id="mnext">Siguiente</button>
+  </div>
+  <p class="foot">Supuesto de zonas para la regla de un blanco por zona: el blanco 1 cuenta como B, el del pasillo oriente norte como D, el del pasillo sur como A y el 12 como C. Si la Comandancia lo define distinto, hay que reordenar. Largos de manguera estimados sobre el croquis; validar en las prácticas.</p>
+</div>
+
+<script>
+(function(){
+var S=10, OX=60, OY=40;
+function X(m){return OX+m*S} function Y(m){return OY+m*S}
+function pts(a){return a.map(function(p){return X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)}).join(" ")}
+function line(a,b,st){return '<line x1="'+X(a[0])+'" y1="'+Y(a[1])+'" x2="'+X(b[0])+'" y2="'+Y(b[1])+'" '+st+'/>'}
+function rect(x1,y1,x2,y2,st){return '<rect x="'+X(x1)+'" y="'+Y(y1)+'" width="'+(x2-x1)*S+'" height="'+(y2-y1)*S+'" '+st+'/>'}
+function text(x,y,t,st){return '<text x="'+X(x)+'" y="'+Y(y)+'" '+(st||'')+'>'+t+'</text>'}
+var W='stroke="var(--ink)" stroke-width="1.6" fill="none" stroke-linecap="square"';
+
+var walls=[[[0,5],[22,5]],[[28,0],[28,7]],[[28,8],[28,41]],[[28,5],[45,5]],[[22,10],[22,41]],[[5,5],[5,30]],[[10,25],[22,25]],[[28,25],[45,25]],[[45,10],[45,37]],[[0,42],[22,42]],[[28,42],[45,42]]];
+
+var T={
+ 1:{c:[30.9,2.5],d:[-1,0]}, 2:{c:[47,47],d:[.707,.707]}, 3:{c:[8,8],d:[-.707,-.707]},
+ 4:{c:[3,39],d:[0,-1]}, 5:{c:[31,22],d:[.707,-.707]}, 6:{c:[31,39],d:[-.707,.707]},
+ 7:{c:[19,39],d:[.707,.707]}, 8:{c:[19,22],d:[-.707,-.707]}, 9:{c:[42,22],d:[.707,.707]},
+ 10:{c:[31,28],d:[.707,.707]}, 11:{c:[2.5,8],d:[0,1]}, 12:{c:[3,47],d:[-1,0]}
+};
+
+var PIT={
+ PB:{n:"P-B",col:"var(--north)",o:[47.5,7.5],shots:[1,5,9]},
+ PD:{n:"P-D",col:"var(--north)",o:[47.5,42],shots:[2,6,10]},
+ PAC:{n:"P-AC",col:"var(--west)",o:[21.5,7.5],shots:[3,4,7,8,11]},
+ P12:{n:"P-12",col:"var(--h52)",o:[1.5,44],shots:[12],dash:true}
+};
+
+var SH={
+ 1:{p:"PB",z:"Zona B · bolsillo del pasillo poniente, lado norte",
+    F:{s:[37,3],w:[[47.5,3],[37,3]]}, L:{s:[29.2,2.6],w:[[47.5,4.2],[29.4,4.2],[29.2,2.6]]},
+    t:"Blanco fijo de la Comandancia. El bolsillo del blanco 1 está cerrado hacia el pasillo central: solo se llega por el pasillo norte. La rama de P-B sube por el pasillo norte desde el gemelo G-N y entra al bolsillo. Es la línea más larga, así que se arma primero."},
+ 2:{p:"PD",z:"Zona D · pasillo oriente, extremo norte",
+    F:{s:[41.5,44.5],w:[[41.5,44.5]]}, L:{s:[49.2,49.2],w:[[49.3,44],[49.2,49.2]]},
+    t:"P-D sale del gemelo G-N y tira desde el pasillo oriente, todavía sin entrar a D."},
+ 3:{p:"PAC",z:"Zona A · sector sur-poniente",
+    F:{s:[14,14],w:[[14,14]]}, L:{s:[6,5.8],w:[[12,5.8],[6,5.8]]},
+    t:"P-AC entra a A por la abertura entre el pasillo central y A (extremo poniente del pasillo central)."},
+ 4:{p:"PAC",z:"Zona C · sector sur-oriente",
+    F:{s:[4,41.3],w:[[9,24],[7,31],[4,41.3]]}, L:{s:[3,33],w:[[9,24],[7,31],[3,33]]},
+    t:"P-AC cruza a C por la abertura A–C, a 5–10 m del borde sur. Pitón cerrado al desplazarse y cuidado de no pasar a llevar la base del blanco."},
+ 5:{p:"PB",z:"Zona B · sector sur-oriente",
+    F:{s:[29.3,24.3],w:[[44,7.5],[33,10],[29.3,24.3]]}, L:{s:[35,17],w:[[44,7.5],[35,17]]},
+    t:"P-B deja el bolsillo, entra a B por la abertura del pasillo norte (esquina poniente de B) y se ubica para el tiro."},
+ 6:{p:"PD",z:"Zona D · sector sur-oriente",
+    F:{s:[36,34],w:[[46,39.5],[36,34]]}, L:{s:[29,41.2],w:[[46,40.5],[29,41.2]]},
+    t:"P-D entra a D por la abertura del pasillo norte, en la esquina oriente de D."},
+ 7:{p:"PAC",z:"Zona C · sector norte-oriente",
+    F:{s:[13,33],w:[[9,24],[13,33]]}, L:{s:[21.2,41.3],w:[[9,24],[8,27],[21,30],[21.2,41.3]]},
+    t:"P-AC sigue dentro de C."},
+ 8:{p:"PAC",z:"Zona A · sector norte-oriente",
+    F:{s:[21.2,24.3],w:[[21.2,24.3]]}, L:{s:[15.5,18.5],w:[[15.5,18.5]]},
+    t:"P-AC vuelve a A cruzando la abertura A–C."},
+ 9:{p:"PB",z:"Zona B · sector norte-oriente",
+    F:{s:[37,17],w:[[44,7.5],[37,17]]}, L:{s:[44,24],w:[[44,7.5],[44,24]]},
+    t:"P-B se desplaza dentro de B con el pitón cerrado."},
+ 10:{p:"PD",z:"Zona D · sector sur-poniente",
+    F:{s:[29.3,26],w:[[46,39.5],[38,30],[33,25.8],[29.3,26]]}, L:{s:[35,32],w:[[46,39.5],[35,32]]},
+    t:"La manguera rodea el blanco 10 para no pasar a llevar su base."},
+ 11:{p:"PAC",z:"Pasillo sur (cuenta como A) · extremo poniente",
+    F:{s:[2.5,5.7],w:[[9,24],[7,31],[3.8,31],[3.8,6.6],[2.5,5.7]]}, L:{s:[2.5,15],w:[[9,24],[7,31],[3.8,31],[2.5,15]]},
+    t:"El pasillo sur solo se abre hacia C, por su extremo oriente. P-AC entra desde C y avanza por la franja. Desde la caída del 11 el resto del equipo ya puede salir."},
+ 12:{p:"P12",z:"Zona C · pasillo oriente, extremo sur",
+    F:{s:[9,47.8],w:[[1.2,44.5],[1.2,48.4],[9,48.4],[9,47.8]]}, L:{s:[0.8,46.9],w:[[0.8,45],[0.8,46.9]]},
+    t:"Blanco fijo. Lo bota el profesional (el mismo que tocó la campana) con la línea de 52 que sale directo de la trifurca. Después cierra su pitón."}
+};
+
+var BELL=[[-1,3.5],[24,3.5],[24,7.5],[30.5,7.5],[44,8.6],[47,10.5],[47,39.5],[43.5,38],[43,29.8]];
+var EXITF=[[9,47.8],[24,45.5],[24.5,41.5],[24.5,3.5],[-2.5,3.5]];
+var EXITL=[[0.8,46.9],[24,45.5],[24.5,41.5],[24.5,3.5],[-2.5,3.5]];
+
+var LW=[[7,44.6],[7.8,43.8],[25,43.8],[25,7.5],[21.5,7.5]];
+var LN=[[7,44.6],[7.8,45.4],[44,45.4],[47.5,42]];
+var PBT=[[47.5,42],[47.5,7.5]];
+
+function drawStatic(){
+  var h='';
+  h+=rect(0,0,50,50,W);
+  h+=rect(-2,0,0,5,W)+line([-2,0],[0,5],W)+line([-2,5],[0,0],W);
+  walls.forEach(function(w){h+=line(w[0],w[1],W)});
+  h+=rect(28,5,30,7,W)+rect(28,8,30,10,W);
+  h+=rect(22,41,28,42,'fill="url(#hatch)" stroke="var(--muro)" stroke-width="1.2"');
+  h+=line([43,25],[43,27],W)+rect(42,27,44,29,W);
+  h+=rect(1,42,2,44,W)+line([0,43],[1,43],W);
+  [[0,1],[49,50]].forEach(function(r){h+=rect(22.3,r[0],27.5,r[1],'fill="none" stroke="var(--ink)" stroke-width="1"')+line([22.3,r[0]],[27.5,r[1]],'stroke="var(--ink)" stroke-width=".8"')+line([22.3,r[1]],[27.5,r[0]],'stroke="var(--ink)" stroke-width=".8"')});
+  var L='fill="var(--ink)" font-family="Barlow Condensed,Arial Narrow,sans-serif" font-weight="600" font-size="34" text-anchor="middle"';
+  h+=text(9.9,16,'A',L)+text(36.7,15.5,'B',L)+text(9.9,34,'C',L)+text(36.3,34,'D',L);
+  var s='fill="var(--muted)" font-size="11" font-family="Barlow,sans-serif"';
+  h+=text(0.5,2.2,'Entrada',s)+text(25,2.4,'Material menor',s+' text-anchor="middle"')+text(25,48.5,'Material menor',s+' text-anchor="middle"');
+  h+=text(30.8,11.8,'Ratonera',s)+text(41.6,28.5,'Campana',s+' text-anchor="end"')+text(28.5,43.3,'Muro 1,5 m',s)+text(-0.5,43.4,'Trifurca',s+' text-anchor="end"');
+  h+='<text x="'+(X(-3.4))+'" y="'+Y(6)+'" transform="rotate(90 '+X(-3.4)+' '+Y(6)+')" '+s+'>Formación</text>';
+  h+=line([51.5,24],[54.5,24],'stroke="var(--ink)" stroke-width="1.2"')+'<polygon points="'+pts([[54.5,23.2],[56.3,24],[54.5,24.8]])+'" fill="none" stroke="var(--ink)" stroke-width="1.2"/>';
+  h+=text(55.4,27.3,'N','fill="var(--ink)" font-family="Barlow Condensed,sans-serif" font-weight="600" font-size="24" text-anchor="middle"');
+  h+=text(25,-1.2,'50 m',s+' text-anchor="middle"');
+  document.getElementById('static').innerHTML=h;
+}
+
+var LAB={1:[2.6,0.5],12:[2.4,-1.1]};
+var mode='F', step=0;
+function spotOf(n){return SH[n][mode].s}
+function posOf(key){
+  var p=PIT[key], cur=null;
+  if(step>=1&&step<=12&&SH[step].p===key) return step;
+  p.shots.forEach(function(n){ if(n<=step) cur=n; });
+  return cur||p.shots[0];
+}
+function drawDynamic(){
+  var h='';
+  var hw=function(a,col,w,dash){return '<polyline points="'+pts(a)+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round" stroke-linecap="round"'+(dash?' stroke-dasharray="6 4"':'')+'/>'};
+  h+=hw(LW,'var(--west)',3.2)+hw(LN,'var(--north)',3.2)+hw(PBT,'var(--north)',3.2);
+  h+=line([2,43.6],[7,44.6],'stroke="var(--ink)" stroke-width="2"');
+  Object.keys(PIT).forEach(function(k){
+    var p=PIT[k], n=posOf(k), w=SH[n][mode].w;
+    h+=hw([p.o].concat(w),p.col,k==='P12'?2.6:2.6,p.dash);
+  });
+  [[7,44.6],[47.5,42]].forEach(function(g){h+='<polygon points="'+pts([[g[0],g[1]-.8],[g[0]+.8,g[1]],[g[0],g[1]+.8],[g[0]-.8,g[1]]])+'" fill="var(--navy)"/>'});
+  h+=text(49.2,41.3,'G-N','fill="var(--navy)" font-size="11" font-weight="500" text-anchor="end"');
+
+  if(step===0) h+='<polyline points="'+pts(BELL)+'" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 3" marker-end="url(#walkHead)"/>';
+  if(step===13) h+='<polyline points="'+pts(mode==='F'?EXITF:EXITL)+'" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 3" marker-end="url(#walkHead)"/>';
+
+  for(var n=1;n<=12;n++){
+    var t=T[n], c=t.c, fallen=(step>n)||step===13, act=(step===n);
+    var fill=act?'var(--active)':'var(--panel)', st=fallen?'var(--fallen)':'var(--ink)';
+    var r=0.9, tip=[c[0]+t.d[0]*2,c[1]+t.d[1]*2];
+    h+=line(c,tip,'stroke="'+st+'" stroke-width="1.4"');
+    h+='<circle cx="'+X(c[0])+'" cy="'+Y(c[1])+'" r="'+r*S+'" fill="'+fill+'" stroke="'+st+'" stroke-width="'+(act?2:1.4)+'"/>';
+    if(fallen) h+=line([c[0]-.6,c[1]-.6],[c[0]+.6,c[1]+.6],'stroke="var(--fallen)" stroke-width="1.4"')+line([c[0]-.6,c[1]+.6],[c[0]+.6,c[1]-.6],'stroke="var(--fallen)" stroke-width="1.4"');
+    var pr=[-t.d[1],t.d[0]], lp=LAB[n]?[c[0]+LAB[n][0],c[1]+LAB[n][1]]:[c[0]+pr[0]*2.2,c[1]+pr[1]*2.2+.45];
+    h+=text(lp[0],lp[1],n,'fill="'+(fallen?'var(--fallen)':'var(--ink)')+'" font-family="Barlow Condensed,sans-serif" font-weight="600" font-size="'+(act?17:14)+'" text-anchor="middle"');
+    if(n===1||n===12) h+='<circle cx="'+X(c[0])+'" cy="'+Y(c[1])+'" r="'+(r*S+3.5)+'" fill="none" stroke="'+st+'" stroke-width="1"/>';
+  }
+
+  Object.keys(PIT).forEach(function(k){
+    var p=PIT[k], n=posOf(k), s=SH[n][mode].s, act=(step===n);
+    h+='<circle cx="'+X(s[0])+'" cy="'+Y(s[1])+'" r="'+(act?6:4.5)+'" fill="'+p.col+'" stroke="var(--panel)" stroke-width="1.5"/>';
+    var full=[p.o].concat(SH[n][mode].w), q=full.length>1?full[full.length-2]:p.o, vx=s[0]-q[0], vy=s[1]-q[1], vl=Math.hypot(vx,vy)||1;
+    var lx=s[0], ly=s[1]-1.1, anchor='middle'; if(s[1]<3){ly=s[1]+2.1}
+    h+=text(lx,ly,p.n,'fill="'+p.col+'" font-size="12" font-weight="500" text-anchor="'+anchor+'"');
+  });
+
+  if(step>=1&&step<=12){
+    var s=spotOf(step), c=T[step].c, dx=c[0]-s[0], dy=c[1]-s[1], L=Math.hypot(dx,dy);
+    var a=[s[0]+dx/L*0.7,s[1]+dy/L*0.7], b=[c[0]-dx/L*1.3,c[1]-dy/L*1.3];
+    if(L>2.1) h+=line(a,b,'stroke="var(--jet)" stroke-width="2.6" marker-end="url(#jetHead)"');
+  }
+  document.getElementById('dynamic').innerHTML=h;
+}
+
+var INFO={
+ 0:{t:"Campana y armada",m:"Antes del primer blanco",
+    n:"El profesional (número 12 en la espalda) entra solo, cruza la ratonera, sale de B al pasillo norte y entra a D para tocar la campana. Recién entonces entra el resto. Desde el gemelo G1 en la trifurca salen dos líneas de 72: la poniente, que pasa el muro y sube por el pasillo central hasta A, y la norte, que va por el pasillo oriente hasta el gemelo G-N. La línea de 52 del blanco 12 sale directo de la trifurca."},
+ 13:{t:"Salida",m:"Fin del movimiento",
+    n:"Todos los pitones cerrados (3 minutos de castigo si alguno queda abierto). El profesional sale último: sube el muro, recorre el pasillo central y sale por la entrada. El tiempo corre hasta que cruza la entrada."}
+};
+function render(){
+  var tt=document.getElementById('stepTitle'), mm=document.getElementById('stepMeta'), nn=document.getElementById('stepNote');
+  if(step===0||step===13){tt.textContent=INFO[step].t; mm.textContent=INFO[step].m; nn.textContent=INFO[step].n;}
+  else{var s=SH[step]; tt.textContent='Blanco '+step; mm.textContent=s.z+' · pitón '+PIT[s.p].n+' · secuencia '+Math.ceil(step/4); nn.textContent=s.t;}
+  document.getElementById('mlabel').textContent=step===0?'Inicio':(step===13?'Salida':'Blanco '+step);
+  document.getElementById('mprev').disabled=step===0; document.getElementById('mnext').disabled=step===13;
+  document.getElementById('prev').disabled=step===0;
+  document.getElementById('next').disabled=step===13;
+  Array.prototype.forEach.call(document.querySelectorAll('.chips button'),function(b){ if(+b.dataset.s===step) b.setAttribute('aria-current','step'); else b.removeAttribute('aria-current'); });
+  drawDynamic();
+}
+var chips=document.getElementById('chips');
+for(var i=0;i<=13;i++){var b=document.createElement('button');b.dataset.s=i;b.textContent=i===0?'Inicio':(i===13?'Salida':i);b.setAttribute('aria-label',i===0?'Campana y armada':(i===13?'Salida':'Blanco '+i));b.addEventListener('click',function(){step=+this.dataset.s;render()});chips.appendChild(b);}
+document.getElementById('prev').onclick=function(){if(step>0){step--;render()}};
+document.getElementById('next').onclick=function(){if(step<13){step++;render()}};
+document.getElementById('mprev').onclick=function(){if(step>0){step--;render()}};
+document.getElementById('mnext').onclick=function(){if(step<13){step++;render()}};
+var zb=document.getElementById('zoom'), bd=document.getElementById('board');
+zb.onclick=function(){var on=!bd.classList.contains('zoom');bd.classList.toggle('zoom',on);zb.setAttribute('aria-pressed',on);zb.textContent=on?'Reducir cancha':'Ampliar cancha'};
+var tx=null,ty=null;
+bd.addEventListener('touchstart',function(e){if(bd.classList.contains('zoom'))return;tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+bd.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&step<13){step++;render()}else if(dx>0&&step>0){step--;render()}}},{passive:true});
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'&&step<13){step++;render()} if(e.key==='ArrowLeft'&&step>0){step--;render()}});
+function setMode(m){mode=m;document.getElementById('modeF').setAttribute('aria-pressed',m==='F');document.getElementById('modeL').setAttribute('aria-pressed',m==='L');render()}
+document.getElementById('modeF').onclick=function(){setMode('F')};
+document.getElementById('modeL').onclick=function(){setMode('L')};
+drawStatic(); render();
+})();
+</script>
+</body>
+</html>
