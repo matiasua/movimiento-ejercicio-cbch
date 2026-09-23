@@ -113,22 +113,24 @@ th{font-weight:500;color:var(--muted)}
       <div class="chips" id="chips" aria-label="Ir a un paso"></div>
 
       <h2>Orden de botado</h2>
-      <table>
+      <div class="toggle" role="group" aria-label="Orden a mostrar">
+        <button id="oA" aria-pressed="true">Orden actual del equipo</button>
+        <button id="oP" aria-pressed="false">Propuesta nueva</button>
+      </div>
+      <p class="hint" id="oHint"></p>
+      <table style="margin-top:10px">
         <thead><tr><th>Secuencia</th><th>Blancos y zona</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>1 B · 2 A · 3 D · 4 C</td></tr>
-          <tr><td>2</td><td>5 B · 6 C · 7 D · 8 A</td></tr>
-          <tr><td>3</td><td>9 B · 10 A · 11 D · 12 C</td></tr>
-        </tbody>
+        <tbody id="oBody"></tbody>
       </table>
 
       <h2>Referencias</h2>
       <div class="legend">
         <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--north)" stroke-width="4.5"/></svg><span>Tronco 70 mm (3 mangueras) desde la trifurca al gemelo</span>
-        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--pb)" stroke-width="2.6"/></svg><span>Rama 50 mm de P-B (blancos 1, 5 y 9)</span>
-        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--north)" stroke-width="2.6"/></svg><span>Rama 50 mm de P-D (blancos 3, 7, 11 y 12)</span>
-        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--west)" stroke-width="2.6"/></svg><span>Línea 50 mm de P-AC (blancos 2, 4, 6, 8 y 10)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--pb)" stroke-width="2.6"/></svg><span>Rama 50 mm de P-B (zona B y blanco 1)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--north)" stroke-width="2.6"/></svg><span>Rama 50 mm de P-D (zona D, pasillo oriente y blanco 12)</span>
+        <svg class="sw" viewBox="0 0 34 10"><line x1="0" y1="5" x2="34" y2="5" stroke="var(--west)" stroke-width="2.6"/></svg><span>Línea 50 mm de P-AC (zonas A y C y pasillo sur)</span>
         <svg class="sw" viewBox="0 0 34 10"><polygon points="17,0 22,5 17,10 12,5" fill="var(--navy)"/></svg><span>Gemelo 70x50x50</span>
+        <svg class="sw" viewBox="0 0 34 10"><circle cx="17" cy="5" r="4.2" fill="none" stroke="var(--muro)" stroke-width="1.3" stroke-dasharray="3 2"/></svg><span>Blancos que cambian de número entre ambas propuestas</span>
         <svg class="sw" viewBox="0 0 34 10"><line x1="2" y1="5" x2="30" y2="5" stroke="var(--jet)" stroke-width="2.5" marker-end="url(#jetHead)"/></svg><span>Chorro del pitón, en el sentido de caída del blanco</span>
         <svg class="sw" viewBox="0 0 34 10"><line x1="2" y1="5" x2="30" y2="5" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="3 3"/></svg><span>Recorrido a pie (campana y salida)</span>
       </div>
@@ -225,19 +227,34 @@ function drawStatic(){
 
 var LAB={1:[2.6,0.5],12:[3.2,1.1],11:[-2.3,1.9]};
 var step=0;
-function spotOf(n){return SH[n].s}
-function posOf(key){
-  var p=PIT[key], cur=null;
-  if(step>=1&&step<=12&&SH[step].p===key) return step;
-  p.shots.forEach(function(n){ if(n<=step) cur=n; });
-  return cur||p.shots[0];
+var order='A';
+var MAP={A:{1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,11:11,12:12},
+         P:{1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:11,10:9,11:10,12:12}};
+function keyOf(n){return MAP[order][n]}
+function dispOf(k){for(var n=1;n<=12;n++){if(MAP[order][n]===k)return n}}
+var POVR={
+ 9:"P-D sale de D al pasillo oriente y bota el blanco del extremo norte (zona D). Apenas cae, empieza a arrastrar su línea hacia el 12 por el costado oriente del pasillo, con el pitón cerrado.",
+ 10:"P-B retrocede dentro de B y bota su último blanco. Al mismo tiempo, P-D sigue arrastrando su línea hacia el 12.",
+ 11:"Último blanco de P-AC, junto a la entrada de A. P-D ya está en posición frente al 12. Desde esta caída el resto del equipo puede salir, y P-AC queda a pocos metros de la salida.",
+ 12:"Blanco fijo. El profesional ya está en posición porque arrastró durante los blancos 10 y 11. Tira de inmediato desde el norte, a favor del sentido de caída, y cierra el pitón."
+};
+function posOf(pk){
+  var cur=null, first=null;
+  for(var n=1;n<=12;n++){var k=keyOf(n); if(SH[k].p!==pk) continue; if(first===null) first=k; if(n<=step) cur=k;}
+  return cur||first;
 }
+function pdOverride(){
+  if(order==='P'&&step===10) return {s:[27,46.6],w:[[33,46.6],[27,46.6]]};
+  if(order==='P'&&step===11) return {s:SH[12].s,w:SH[12].w};
+  return null;
+}
+function dataOf(pk){var n=posOf(pk); var o=(pk==='PD')?pdOverride():null; return {k:n,d:o||SH[n],drag:!!o};}
 function drawDynamic(){
   var h='';
   var hw=function(a,col,w,dash){return '<polyline points="'+pts(a)+'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linejoin="round" stroke-linecap="round"'+(dash?' stroke-dasharray="6 4"':'')+'/>'};
   h+=hw(TRUNK,'var(--north)',4.5)+hw(LAC,'var(--west)',2.6)+hw(PBT,'var(--pb)',2.6);
   Object.keys(PIT).forEach(function(k){
-    var p=PIT[k], n=posOf(k), w=SH[n].w;
+    var p=PIT[k], w=dataOf(k).d.w;
     h+=hw([p.o].concat(w),p.col,2.6);
   });
   h+='<polygon points="'+pts([[G[0],G[1]-.9],[G[0]+.9,G[1]],[G[0],G[1]+.9],[G[0]-.9,G[1]]])+'" fill="var(--navy)"/>';
@@ -246,28 +263,29 @@ function drawDynamic(){
   if(step===0) h+='<polyline points="'+pts(BELL)+'" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 3" marker-end="url(#walkHead)"/>';
   if(step===13) h+='<polyline points="'+pts(EXIT)+'" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="3 3" marker-end="url(#walkHead)"/>';
 
-  for(var n=1;n<=12;n++){
-    var t=T[n], c=t.c, fallen=(step>n)||step===13, act=(step===n);
+  for(var kk=1;kk<=12;kk++){
+    var n=kk, dn=dispOf(kk), t=T[n], c=t.c, fallen=(step>dn)||step===13, act=(step===dn);
     var fill=act?'var(--active)':'var(--panel)', st=fallen?'var(--fallen)':'var(--ink)';
     var r=0.9, tip=[c[0]+t.d[0]*2,c[1]+t.d[1]*2];
     h+=line(c,tip,'stroke="'+st+'" stroke-width="1.4"');
     h+='<circle cx="'+X(c[0])+'" cy="'+Y(c[1])+'" r="'+r*S+'" fill="'+fill+'" stroke="'+st+'" stroke-width="'+(act?2:1.4)+'"/>';
     if(fallen) h+=line([c[0]-.6,c[1]-.6],[c[0]+.6,c[1]+.6],'stroke="var(--fallen)" stroke-width="1.4"')+line([c[0]-.6,c[1]+.6],[c[0]+.6,c[1]-.6],'stroke="var(--fallen)" stroke-width="1.4"');
     var pr=[-t.d[1],t.d[0]], lp=LAB[n]?[c[0]+LAB[n][0],c[1]+LAB[n][1]]:[c[0]+pr[0]*2.2,c[1]+pr[1]*2.2+.45];
-    h+=text(lp[0],lp[1],n,'fill="'+(fallen?'var(--fallen)':'var(--ink)')+'" font-family="Barlow Condensed,sans-serif" font-weight="600" font-size="'+(act?17:14)+'" text-anchor="middle"');
+    h+=text(lp[0],lp[1],dn,'fill="'+(fallen?'var(--fallen)':'var(--ink)')+'" font-family="Barlow Condensed,sans-serif" font-weight="600" font-size="'+(act?17:14)+'" text-anchor="middle"');
+    if(n>=9&&n<=11) h+='<circle cx="'+X(c[0])+'" cy="'+Y(c[1])+'" r="'+(r*S+7)+'" fill="none" stroke="var(--muro)" stroke-width="1.3" stroke-dasharray="3 2"/>';
     if(n===1||n===12) h+='<circle cx="'+X(c[0])+'" cy="'+Y(c[1])+'" r="'+(r*S+3.5)+'" fill="none" stroke="'+st+'" stroke-width="1"/>';
   }
 
   Object.keys(PIT).forEach(function(k){
-    var p=PIT[k], n=posOf(k), s=SH[n].s, act=(step===n);
+    var p=PIT[k], D=dataOf(k), n=D.k, s=D.d.s, act=(step>=1&&step<=12&&keyOf(step)===n&&!D.drag);
     h+='<circle cx="'+X(s[0])+'" cy="'+Y(s[1])+'" r="'+(act?6:4.5)+'" fill="'+p.col+'" stroke="var(--panel)" stroke-width="1.5"/>';
         var lx=s[0], ly=s[1]-1.1, anchor='middle'; if(s[1]<3){ly=s[1]+2.1}
-    if(SH[n].lo){lx=s[0]+SH[n].lo[0]; ly=s[1]+SH[n].lo[1]; anchor=SH[n].lo[2];}
+    if(!D.drag&&SH[n].lo){lx=s[0]+SH[n].lo[0]; ly=s[1]+SH[n].lo[1]; anchor=SH[n].lo[2];}
     h+=text(lx,ly,p.n,'fill="'+p.col+'" font-size="12" font-weight="500" text-anchor="'+anchor+'"');
   });
 
   if(step>=1&&step<=12){
-    var s=spotOf(step), c=T[step].c, dx=c[0]-s[0], dy=c[1]-s[1], L=Math.hypot(dx,dy);
+    var sk=keyOf(step), s=SH[sk].s, c=T[sk].c, dx=c[0]-s[0], dy=c[1]-s[1], L=Math.hypot(dx,dy);
     var a=[s[0]+dx/L*0.7,s[1]+dy/L*0.7], b=[c[0]-dx/L*1.3,c[1]-dy/L*1.3];
     if(L>2.1) h+=line(a,b,'stroke="var(--jet)" stroke-width="2.6" marker-end="url(#jetHead)"');
   }
@@ -283,7 +301,8 @@ var INFO={
 function render(){
   var tt=document.getElementById('stepTitle'), mm=document.getElementById('stepMeta'), nn=document.getElementById('stepNote');
   if(step===0||step===13){tt.textContent=INFO[step].t; mm.textContent=INFO[step].m; nn.textContent=INFO[step].n;}
-  else{var s=SH[step]; tt.textContent='Blanco '+step; mm.textContent=s.z+' · pitón '+PIT[s.p].n+' · secuencia '+Math.ceil(step/4); nn.textContent=s.t;}
+  else{var s=SH[keyOf(step)]; tt.textContent='Blanco '+step; mm.textContent=s.z+' · pitón '+PIT[s.p].n+' · secuencia '+Math.ceil(step/4); nn.textContent=(order==='P'&&POVR[step])||s.t;}
+  renderOrder();
   document.getElementById('mlabel').textContent=step===0?'Inicio':(step===13?'Salida':'Blanco '+step);
   document.getElementById('mprev').disabled=step===0; document.getElementById('mnext').disabled=step===13;
   document.getElementById('prev').disabled=step===0;
@@ -303,6 +322,20 @@ var tx=null,ty=null;
 bd.addEventListener('touchstart',function(e){if(bd.classList.contains('zoom'))return;tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
 bd.addEventListener('touchend',function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){if(dx<0&&step<13){step++;render()}else if(dx>0&&step>0){step--;render()}}},{passive:true});
 document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'&&step<13){step++;render()} if(e.key==='ArrowLeft'&&step>0){step--;render()}});
+function renderOrder(){
+  var rows=order==='A'?[['1','1 B · 2 A · 3 D · 4 C'],['2','5 B · 6 C · 7 D · 8 A'],['3','9 B · 10 A · 11 D · 12 C']]
+                      :[['1','1 B · 2 A · 3 D · 4 C'],['2','5 B · 6 C · 7 D · 8 A'],['3','9 D · 10 B · 11 A · 12 C']];
+  document.getElementById('oBody').innerHTML=rows.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>'}).join('');
+  document.getElementById('oHint').textContent=order==='A'
+    ?'P-D bota el 11 y recién después arrastra su línea hacia el 12. El equipo espera ese arrastre al final.'
+    :'Solo cambia la secuencia 3. P-D bota primero el blanco del pasillo oriente (9) y arrastra mientras caen el 10 y el 11, así el 12 cae sin espera.';
+  document.getElementById('oA').setAttribute('aria-pressed',order==='A');
+  document.getElementById('oP').setAttribute('aria-pressed',order==='P');
+}
+function setOrder(o){order=o;try{var u=new URL(location.href);if(o==='P')u.searchParams.set('orden','propuesta');else u.searchParams.delete('orden');history.replaceState(null,'',u)}catch(e){}render()}
+document.getElementById('oA').onclick=function(){setOrder('A')};
+document.getElementById('oP').onclick=function(){setOrder('P')};
+try{if(new URLSearchParams(location.search).get('orden')==='propuesta')order='P'}catch(e){}
 drawStatic(); render();
 })();
 </script>
